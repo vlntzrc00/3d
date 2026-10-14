@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Coração 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,750&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <div class="stage" id="stage">
+    <div class="loading" id="loading">Montando 140 peças…</div>
+    <div class="tip" id="tip" hidden></div>
+    <div class="zoom" aria-label="Zoom">
+      <button id="zIn" aria-label="Aproximar">+</button>
+      <input id="zR" type="range" min="0" max="100" value="40" aria-label="Nível de zoom">
+      <button id="zOut" aria-label="Afastar">−</button>
+      <button id="zFit" aria-label="Enquadrar" title="Enquadrar">⤢</button>
+      <small id="zL">100%</small>
+    </div>
+    <div class="hint">Arraste para girar · clique numa estrutura para ver o nome</div>
+  </div>
+
+  <aside class="panel">
+    <header>
+      <h1>Coração 3D</h1>
+      <p class="sub">128 peças reais do BodyParts3D + 12 vasos modelados para ligar o coração ao resto do corpo.</p>
+    </header>
+
+    <section class="sel" aria-live="polite">
+      <p class="lbl">Estrutura selecionada</p>
+      <h2 id="sName">Nenhuma ainda</h2>
+      <div class="chips" id="sChips"></div>
+      <p id="sNote">Clique em qualquer parte do coração. As peças <b>modeladas</b> aparecem com um selo verde.</p>
+      <p class="en" id="sEn" hidden></p>
+    </section>
+
+    <section>
+      <p class="lbl">Cores</p>
+      <div class="seg seg3" role="group" aria-label="Modo de cor">
+        <button id="cReal" aria-pressed="true">Realista</button>
+        <button id="cAnat" aria-pressed="false">Didático</button>
+        <button id="cOrig" aria-pressed="false">Real × modelado</button>
+      </div>
+      <label class="fatT" id="fatWrap" style="display:flex;gap:8px;align-items:center;margin-top:10px;font-size:14px;cursor:pointer"><input type="checkbox" id="fatT" checked> Gordura epicárdica nos sulcos</label>
+      <div class="legend" id="origLegend" hidden style="margin-top:10px">
+        <span><i class="sw" style="background:#c9b3b6"></i>Real (BodyParts3D)</span>
+        <span><i class="sw" style="background:#22b46e"></i>Modelado (aproximado)</span>
+      </div>
+    </section>
+
+    <section>
+      <p class="lbl">Qualidade</p>
+      <div class="seg seg2" role="group" aria-label="Qualidade gráfica">
+        <button id="qAlta" aria-pressed="true">Alta</button>
+        <button id="qLeve" aria-pressed="false">Leve</button>
+      </div>
+      <p class="sub">"Leve" usa material simples e menos resolução. Abre assim no celular; use se girar ficar lento.</p>
+    </section>
+
+    <section>
+      <p class="lbl">Camadas</p>
+      <div class="layers" id="layers"></div>
+    </section>
+
+    <section>
+      <p class="lbl">Ver por dentro</p>
+      <label for="op" style="font-size:14px">Transparência das paredes: <b id="opL">0%</b></label>
+      <input id="op" type="range" min="0" max="90" value="0">
+      <p class="sub">Aumente para ver valvas, músculos papilares e o sistema de condução.</p>
+    </section>
+
+    <section>
+      <p class="lbl">Vistas</p>
+      <div class="views">
+        <button class="btn" data-v="ant">Anterior</button>
+        <button class="btn" data-v="post">Posterior</button>
+        <button class="btn" data-v="esq">Esquerda</button>
+        <button class="btn" data-v="dir">Direita</button>
+        <button class="btn" data-v="sup">Superior</button>
+      </div>
+    </section>
+
+    <section class="simp">
+      <h3>O que o modelo simplifica</h3>
+      <ul>
+        <li><b>O coração em si é todo real:</b> paredes, valvas (mitral, tricúspide, aórtica e pulmonar), músculos papilares, trabéculas, coronárias, veias cardíacas e sistema de condução vêm do BodyParts3D.</li>
+        <li><b>Modelados por mim (aproximados):</b> arco aórtico com os 3 ramos e aorta descendente, artérias pulmonares direita e esquerda, veias cavas e as 4 veias pulmonares. Cada um parte de uma abertura real (topo da aorta ascendente, bifurcação do tronco pulmonar, aberturas do átrio direito e óstios marcados no átrio esquerdo); o trajeto até o pulmão ou o corpo é aproximado e foi cortado perto do coração.</li>
+        <li>Faltam as cordas tendíneas, que não estão no BodyParts3D.</li>
+        <li>Neste modelo a artéria interventricular posterior vem da coronária esquerda (dominância esquerda). Na maioria das pessoas (≈ 70–80%) ela vem da coronária direita.</li>
+      </ul>
+    </section>
+
+    <p class="credit">Peças reais: <a href="https://lifesciencedb.jp/bp3d/" target="_blank" rel="noopener">BodyParts3D</a>, © The Database Center for Life Science, licença CC BY-SA 2.1 JP. Coordenadas originais em milímetros (modelo masculino adulto).</p>
+  </aside>
+</div>
+
+
+<!-- Bibliotecas (cópias locais do Three.js r147, funcionam sem internet) -->
+<script src="vendor/three.min.js"></script>
+<script src="vendor/OrbitControls.js"></script>
+<script src="vendor/RoomEnvironment.js"></script>
+<!-- Dados do coração: gerados por scripts/gerar_dados.py -->
+<script src="data/heart_data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
